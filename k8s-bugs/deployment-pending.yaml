@@ -1,0 +1,26 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo
+  namespace: troubleshoot
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: demo-app
+  template:
+    metadata:
+      labels:
+        app: demo-app
+    spec:
+      containers:
+        - name: memory-request-limit-container
+          image: busybox
+          command: ["sleep", "3600"]
+          resources:
+            limits:
+              memory: "2000Mi"
+            requests:
+              cpu: 1
+              memory: "2000Mi"

@@ -1,0 +1,20 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sleep
+  namespace: troubleshoot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-sleep
+  template:
+    metadata:
+      labels:
+        app: demo-sleep
+    spec:
+      containers:
+        - name: sleep
+          image: busybox
+          command: ["slaapt", "3600"]
