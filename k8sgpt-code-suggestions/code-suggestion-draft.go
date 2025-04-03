@@ -164,6 +164,8 @@ func main() {
 
 			This gives me the following error on my cluster: ` + errorText + `
 
+			Please fix the manifest for me. And only send the fixed yaml as the response.
+
 		`
 
 		payload := map[string]interface{}{
