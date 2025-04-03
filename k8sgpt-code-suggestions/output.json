@@ -1,0 +1,69 @@
+{
+  "provider": "ollama",
+  "errors": null,
+  "status": "ProblemDetected",
+  "problems": 4,
+  "results": [
+    {
+      "kind": "Service",
+      "name": "troubleshoot/webapp-svc",
+      "error": [
+        {
+          "Text": "Service has no endpoints, expected label app=webapp",
+          "KubernetesDoc": "",
+          "Sensitive": [
+            {
+              "Unmasked": "app",
+              "Masked": "ckZH"
+            },
+            {
+              "Unmasked": "webapp",
+              "Masked": "Q0x0LTVH"
+            }
+          ]
+        }
+      ],
+      "details": "Error: Service has no endpoints, expected label app=webapp.\n\nSolution: \n1. Check if the service is created correctly.\n2. Verify that the pod(s) associated with the service are running and healthy.\n3. Ensure the correct label \"app=webapp\" is applied to the pods or services.\n4. If using a Deployment, check if the rollout is complete and all replicas are up.\n5. Run `kubectl get svc` and `kubectl get pods` to verify the status of your service and pods.",
+      "parentObject": ""
+    },
+    {
+      "kind": "Pod",
+      "name": "troubleshoot/liveness",
+      "error": [
+        {
+          "Text": "the last termination reason is Error container=liveness pod=liveness",
+          "KubernetesDoc": "",
+          "Sensitive": []
+        }
+      ],
+      "details": "Error: The liveness probe of a container failed, causing the pod to terminate.\n\nSolution: \n1. Check the container's logs for errors.\n2. Verify the liveness probe configuration in the deployment YAML file.\n3. Update the probe command or timeout if necessary.\n4. Restart the pod or redeploy the application.",
+      "parentObject": ""
+    },
+    {
+      "kind": "Pod",
+      "name": "troubleshoot/sleep-6b8f98fdb-jnxb6",
+      "error": [
+        {
+          "Text": "the last termination reason is StartError container=sleep pod=sleep-6b8f98fdb-jnxb6",
+          "KubernetesDoc": "",
+          "Sensitive": []
+        }
+      ],
+      "details": "Error: The pod \"sleep-6b8f98fdb-jnxb6\" failed to start due to a container failure.\n\nSolution: \n1. Check the sleep container logs for errors.\n2. Verify that the sleep image is properly configured and running.\n3. Ensure that the pod's resources (CPU, memory) are sufficient for the sleep container.\n4. Try restarting the pod or rolling back to a previous version if available.",
+      "parentObject": "Deployment/sleep"
+    },
+    {
+      "kind": "Pod",
+      "name": "troubleshoot/webapp-8644b58b4b-879hd",
+      "error": [
+        {
+          "Text": "Back-off pulling image \"nginx:1.20.33\": ErrImagePull: rpc error: code = NotFound desc = failed to pull and unpack image \"docker.io/library/nginx:1.20.33\": failed to resolve reference \"docker.io/library/nginx:1.20.33\": docker.io/library/nginx:1.20.33: not found",
+          "KubernetesDoc": "",
+          "Sensitive": []
+        }
+      ],
+      "details": "Error: Unable to pull nginx image due to not found error.\n\nSolution: \n1. Check if the image exists on Docker Hub.\n2. Verify your internet connection and DNS resolution.\n3. Try pulling the image using `docker pull nginx:1.20.33` command.\n4. If still not working, check your Kubernetes cluster's Docker configuration and credentials.",
+      "parentObject": "Deployment/webapp"
+    }
+  ]
+}
