@@ -209,12 +209,11 @@ func main() {
 		//fmt.Println(errorText)
 		prompt := ` 
 
-			This is my kubernetes manifest: 
-			` + yamlWitherror + `
+This is my kubernetes manifest:
+` + yamlWitherror + `
+This gives me the following error on my cluster: ` + errorText + `
 
-			This gives me the following error on my cluster: ` + errorText + `
-
-			Please fix the manifest for me. And only send the fixed yaml as the response.
+Please fix the manifest for me. And only send the fixed yaml as the response.
 
 		`
 		fmt.Println("Sending the following prompt to", url, ":", prompt)
