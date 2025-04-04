@@ -96,7 +96,6 @@ func main() {
 	//fmt.Println("Status:", output.Status)
 	//fmt.Println("Problems:", output.Problems)
 	for _, result := range output.Results {
-
 		//fmt.Println("Name:", result.Name)
 		//fmt.Println()
 		//fmt.Println("Kind:", result.Kind)
@@ -106,6 +105,29 @@ func main() {
 		//fmt.Println("ParentObject:", result.ParentObject)
 		//fmt.Println()
 		//fmt.Println("Error:", result.Error)
+		var resourceName string
+		if result.ParentObject != "" {
+			resourceName = result.ParentObject
+		} else {
+			resourceName = result.Name
+		}
+
+		// Split the string by "/"
+		resourceNameParts := strings.Split(resourceName, "/")
+		// Check if we have at least two parts
+		if len(resourceNameParts) < 2 {
+			fmt.Println("The string does not contain a '/' to separate.")
+			return
+		}
+
+		// Assign the two parts
+		//namespace := resourceNameParts[0]
+		resourceName = resourceNameParts[1]
+
+		// Print the results
+		//fmt.Println("First part:", namespace)
+		//fmt.Println("Second part:", resourceName)
+
 		var resultErrors Errors
 		err = json.Unmarshal(byteValue, &resultErrors)
 		if err != nil {
@@ -119,8 +141,9 @@ func main() {
 		}
 
 		// Define the starting directory and the search string.
-		root := "."             // current directory; change as needed
-		searchString := "hello" // the string to search for
+		root := "../k8s-bugs"        // current directory; change as needed
+		searchString := resourceName // the string to search for
+		var yamlWitherror string
 
 		// Walk through all files starting from the root directory.
 		err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
@@ -145,9 +168,35 @@ func main() {
 			}
 
 			// Check if the file contains the search string.
+			var fileWithError string
+			fmt.Println("Searching folder ", root, "for a k8s manifest containing string:", searchString)
 			if strings.Contains(string(data), searchString) {
-				fmt.Println("Found in:", path)
+				fmt.Println("Found string in file:", path)
+				fileWithError = path
 			}
+
+			// Open the file
+			if fileWithError != "" {
+				file, err = os.Open(fileWithError)
+				if err != nil {
+					fmt.Println("Error opening file:", err)
+					return nil
+				}
+				defer file.Close() // Ensure the file is closed when the function exits
+
+				// Read the file contents
+				data, err = io.ReadAll(file)
+				if err != nil {
+					fmt.Println("Error reading file:", err)
+					return nil
+				}
+
+				// Print the file contents
+				fmt.Println("This is the content of file:", string(fileWithError))
+				fmt.Println(string(data))
+				yamlWitherror = string(data)
+			}
+
 			return nil
 		})
 
@@ -160,14 +209,15 @@ func main() {
 		//fmt.Println(errorText)
 		prompt := ` 
 
-			This is my kubernetes manifest:
+			This is my kubernetes manifest: 
+			` + yamlWitherror + `
 
 			This gives me the following error on my cluster: ` + errorText + `
 
 			Please fix the manifest for me. And only send the fixed yaml as the response.
 
 		`
-
+		fmt.Println("Sending the following prompt to", url, ":", prompt)
 		payload := map[string]interface{}{
 			"model":  "llama3:8b", // Replace with your model name
 			"prompt": prompt,      // Replace with your prompt
@@ -196,9 +246,6 @@ func main() {
 			return
 		}
 
-		// Print the response
-		fmt.Println("Response from Ollama API:", string(responseData))
-
 		var apiResp OllamaResponse
 		err = json.Unmarshal(responseData, &apiResp)
 		if err != nil {
@@ -208,7 +255,8 @@ func main() {
 
 		// Now apiResp.Result contains the full output as a single string.
 		finalOutput := apiResp.Response
-		fmt.Println("Final output:", finalOutput)
+		fmt.Println("AI Response:", finalOutput)
+		fmt.Println("--------------------------------------------------------------------------------------------")
 	}
 
 }
